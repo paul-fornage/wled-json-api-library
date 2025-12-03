@@ -8,11 +8,13 @@ categories = ["network-programming", "api-bindings"]
 description = "WLED Json API in rust. Made with WLED ~14.0, but should work for more"
 repository = "https://github.com/paulwrath1223/wled-json-api-library"
 
+[features]
+default = ["reqwest"]
 
 [dependencies]
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
 serde-aux-ext = "0.2.0"
-reqwest = { version = "0.11.22", features = ["gzip", "blocking"] }
+reqwest = { version = "0.12.24", features = ["gzip", "blocking"], optional = true }
 serde_repr = "0.1.17"
-thiserror = "1.0.50"
+thiserror = "2.0.17"

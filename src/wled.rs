@@ -26,7 +26,7 @@ pub struct Wled {
     pub live: Option<Live>,
     pub nodes: Option<Nodes>,
     pub net: Option<Net>,
-    pub client: Client, // should probably be private in most cases, but fuck you
+    pub client: Client, // should probably be private in most cases, but I don't like private vars
     pub url: Url,
 }
 
