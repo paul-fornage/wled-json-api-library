@@ -10,11 +10,18 @@ repository = "https://github.com/paulwrath1223/wled-json-api-library"
 
 [features]
 default = ["reqwest"]
+reqwest = ["tokio"]
 
 [dependencies]
 serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
 serde-aux-ext = "0.2.0"
-reqwest = { version = "0.12.24", features = ["gzip", "blocking"], optional = true }
+# reqwest defaults to async, blocking is optional
+reqwest = { version = "0.13.1", features = ["gzip"], optional = true }
 serde_repr = "0.1.17"
 thiserror = "2.0.17"
+# tokio is optional, needed for async support
+tokio = { version = "1", features = ["full"], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full", "macros"] }
