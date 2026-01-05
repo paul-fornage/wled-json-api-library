@@ -9,8 +9,8 @@ description = "WLED Json API in rust. Made with WLED ~14.0, but should work for 
 repository = "https://github.com/paulwrath1223/wled-json-api-library"
 
 [features]
-default = ["reqwest"]
-reqwest = ["tokio"]
+default = ["http"]
+http = ["tokio", "reqwest"]
 
 [dependencies]
 serde = { version = "1.0.192", features = ["derive"] }

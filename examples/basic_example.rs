@@ -3,13 +3,14 @@ use reqwest::Url;
 use wled_json_api_library::wled::Wled;
 use wled_json_api_library::structures::{state::State, cfg::Cfg, cfg::cfg_def::Def};
 
-fn main() {
+#[tokio::main]
+async fn main() {
 
     // create the URL
-    let url: Url = Url::try_from("http://192.168.1.40/").unwrap();
+    let url: Url = Url::try_from("http://192.168.1.209/").unwrap();
 
     // create the WLED connection
-    let mut wled: Wled = Wled::try_from_url(&url).unwrap();
+    let mut wled: Wled = Wled::try_from_url(&url).await.unwrap();
     println!("new wled: {wled:?}");
 
     // turn off the WLED
@@ -42,13 +43,13 @@ fn main() {
         });
 
         // flush and print the server response
-        let response = wled.flush_state().unwrap();
-        println!("turning the thing off {:?}", response.text());
+        let response = wled.flush_state().await.unwrap();
+        println!("turning the thing off {:?}", response.text().await.unwrap());
     }
 
 
     // fill internal cfg with result from WLED
-    wled.get_cfg_from_wled().unwrap();
+    wled.get_cfg_from_wled().await.unwrap();
 
     // get the field defining the power on boot default behavior
     let turn_on_after_boot = wled.cfg.unwrap().def.unwrap().on.unwrap();
@@ -67,20 +68,36 @@ fn main() {
     });
 
     // print the response.
-    let response = wled.flush_config().unwrap();
-    println!("toggling: {:?}", response.text());
+    let response = wled.flush_config().await.unwrap();
+    println!("toggling: {:?}", response.text().await.unwrap());
 
     // wait for WLED to finish making this change.
     // Around 100 milliseconds should be enough on good hardware,
     // but this is especially slow because it has to read and write from the internal filesystem
     // where the config file is stored
-    std::thread::sleep(Duration::from_millis(80));
+    tokio::time::sleep(Duration::from_millis(80)).await;
 
 
     // get and print the new state from the server
-    wled.get_cfg_from_wled().unwrap();
-    let turn_on_after_boot = wled.cfg.unwrap().def.unwrap().on.unwrap();
+    wled.get_cfg_from_wled().await.unwrap();
+    let new_cfg = wled.cfg.clone().unwrap();
+    let turn_on_after_boot = new_cfg.def.unwrap().on.unwrap();
 
     println!("received cfg, turn on after boot: {:?}", turn_on_after_boot);
+
+    // turn on the WLED
+    {
+
+        // or use this nice syntax
+        wled.state = Some(State {
+            on: Some(true),
+            ..Default::default()
+        });
+
+        // flush and print the server response
+        let response = wled.flush_state().await.unwrap();
+        println!("turning the thing back on {:?}", response.text().await.unwrap());
+    }
+
 
 }
