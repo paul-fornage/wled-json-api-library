@@ -1,0 +1,138 @@
+openapi: 3.1.0
+info:
+  title: WLED Light Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Light:
+      type: object
+      properties:
+        scale-bri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "% of brightness to set (to limit power, if you set it to 50 and set bri to 255, actual brightness will be 127)"
+        pal-mode:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "paletteBlend: 0 - wrap when moving, 1 - always wrap, 2 - never wrap, 3 - none (undefined)"
+        aseg:
+          type: boolean
+          description: "If true, a segment per bus will be created on boot and LED settings save. If false, only one segment spanning the total LEDs is created, but not on LED settings save if there is more than one segment currently"
+        gc:
+          $ref: '#/components/schemas/Gc'
+        tr:
+          $ref: '#/components/schemas/Tr'
+        nl:
+          $ref: '#/components/schemas/Nl'
+
+    Gc:
+      type: object
+      description: "gamma correction shit, tired of documenting speghetti"
+      properties:
+        bri:
+          type: number
+          format: float64
+          description: "see struct documentation"
+        col:
+          type: number
+          format: float64
+          description: "see struct documentation"
+        val:
+          type: number
+          format: float64
+          description: "see struct documentation"
+
+    Tr:
+      type: object
+      description: "transition stuff, tired of documenting speghetti"
+      properties:
+        mode:
+          type: boolean
+          description: "see struct documentation"
+        dur:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "default transition time / 100"
+        pal:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "see struct documentation"
+        rpc:
+          type: integer
+          format: uint8
+          minimum: 1
+          maximum: 255
+          description: "amount of time [s] between random palette changes (min: 1s, max: 255s)"
+
+    Nl:
+      type: object
+      description: "night light stuff, tired of documenting speghetti"
+      properties:
+        mode:
+          $ref: '#/components/schemas/NightLightMode'
+          description: "see struct documentation"
+        dur:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "see struct documentation"
+        tbri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "brightness after nightlight is over"
+        macro:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "after nightlight delay over"
+
+    NightLightMode:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "Modes for night light"
+      oneOf:
+        - title: NL_MODE_SET
+          const: 0
+          description: "After nightlight time elapsed, set to target brightness"
+        - title: NL_MODE_FADE
+          const: 1
+          description: "Fade to target brightness gradually"
+        - title: NL_MODE_COLORFADE
+          const: 2
+          description: "Fade to target brightness and secondary color gradually"
+        - title: NL_MODE_SUN
+          const: 3
+          description: "Sunrise/sunset. Target brightness is set immediately, then Sunrise effect is started. Max 60 min."
+        - title: RSVD1
+          const: 4
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD2
+          const: 5
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD3
+          const: 6
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD4
+          const: 7
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD5
+          const: 8
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD6
+          const: 9
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"

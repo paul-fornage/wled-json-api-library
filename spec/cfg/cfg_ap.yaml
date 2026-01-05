@@ -1,0 +1,82 @@
+openapi: 3.1.0
+info:
+  title: WLED Access Point Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Ap:
+      type: object
+      description: "Information about the access point that the ESP hosts when enabled, or when connecting to other AP fails"
+      properties:
+        ssid:
+          type: string
+          description: "SSID of local AP"
+        pskl:
+          type: integer
+          format: usize
+          minimum: 0
+          description: "Length of AP password (password is wled1234 by default if I remember correctly)"
+        chan:
+          type: integer
+          format: uint8
+          minimum: 1
+          maximum: 13
+          description: "2.4GHz WiFi AP channel (1-13)"
+        hide:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "hidden AP SSID, no idea why this is a byte but it is"
+        behav:
+          $ref: '#/components/schemas/ApBehaviourEnum'
+          description: "access point opens when no connection after boot by default"
+        ip:
+          type: array
+          description: "IP to host the website when on AP (default 4.3.2.1)"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+
+    ApBehaviourEnum:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "Access Point behavior settings"
+      oneOf:
+        - title: ApBehaviorBootNoConn
+          const: 0
+          description: "Open AP when no connection after boot"
+        - title: ApBehaviorNoConn
+          const: 1
+          description: "Open when no connection (either after boot or if connection is lost)"
+        - title: ApBehaviorAlways
+          const: 2
+          description: "Always open"
+        - title: ApBehaviorButtonOnly
+          const: 3
+          description: "Only when button pressed for 6 sec"
+        - title: RSVD1
+          const: 4
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"
+        - title: RSVD2
+          const: 5
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"
+        - title: RSVD3
+          const: 6
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"
+        - title: RSVD4
+          const: 7
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"
+        - title: RSVD5
+          const: 8
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"
+        - title: RSVD6
+          const: 9
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours"

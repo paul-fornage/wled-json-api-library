@@ -1,0 +1,68 @@
+openapi: 3.1.0
+info:
+  title: WLED Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Config:
+      type: object
+      description: "WLED Configuration"
+      properties:
+        rev:
+          type: array
+          description: "Version of WLED (\"1.0.2\", for example is [1, 0, 2]) but WLED source only uses 2 indices :/"
+          items:
+            type: integer
+            format: uint32
+            minimum: 0
+            maximum: 4294967295
+        vid:
+          type: integer
+          format: uint64
+          minimum: 0
+          description: "Version ID; version code in format yymmddb (b = daily build) (macro called \"VERSION\" in wled source)"
+        id:
+          $ref: './cfg_id.yaml#/components/schemas/Id'
+          description: "identifying information"
+        nw:
+          $ref: './cfg_nw.yaml#/components/schemas/Nw'
+          description: "client mode network info"
+        eth:
+          $ref: './cfg_eth.yaml#/components/schemas/Eth'
+          description: "ethernet info, not included in builds with use Ethernet build flag"
+        ap:
+          $ref: './cfg_ap.yaml#/components/schemas/Ap'
+          description: "Access point info"
+        wifi:
+          $ref: './cfg_wifi.yaml#/components/schemas/Wifi'
+          description: "literally just \"sleep\" whatever the fuck it means"
+        hw:
+          $ref: './cfg_hw/cfg_hw.yaml#/components/schemas/Hw'
+          description: "hardware info"
+        light:
+          $ref: './cfg_light.yaml#/components/schemas/Light'
+          description: "light info"
+        def:
+          $ref: './cfg_def.yaml#/components/schemas/Def'
+          description: "defaults"
+        if:
+          $ref: './cfg_if2.yaml#/components/schemas/If2'
+          description: "Interface info"
+        remote:
+          $ref: './cfg_remote.yaml#/components/schemas/Remote'
+          description: "Remote info"
+        ol:
+          $ref: './cfg_ol.yaml#/components/schemas/Ol'
+          description: "Analog clock stuff"
+        timers:
+          $ref: './cfg_timers.yaml#/components/schemas/Timers'
+          description: "timer settings"
+        ota:
+          $ref: './cfg_ota.yaml#/components/schemas/Ota'
+          description: "Over the air update settings"
+        dmx:
+          $ref: './cfg_dmx.yaml#/components/schemas/Dmx'
+          description: "Dmx setting. build-dependant"
+        um:
+          description: "usermod settings. this depends on the mod, so I wont even touch this."

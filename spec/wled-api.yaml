@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: WLED JSON API
+  version: 1.0.0
+  description: |
+    OpenAPI specification for the WLED JSON API.
+    Converted from Rust structures with strict typing preservation.
+
+components:
+  schemas:
+    WledApi:
+      type: object
+      description: "WLED JSON API Root"
+      properties:
+        cfg:
+          $ref: './cfg/cfg.yaml#/components/schemas/Config'
+          description: "Configuration endpoint"
+        # Additional API endpoints will be added here as they are converted:
+        # effects: Effects list
+        # info: Device information
+        # live: Live data
+        # net: Network information
+        # nodes: Node discovery
+        # palettes: Color palettes
+        # state: Current state
+        # state_info: State information

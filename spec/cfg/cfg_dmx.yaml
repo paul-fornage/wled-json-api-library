@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: WLED DMX Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Dmx:
+      type: object
+      description: "only included in some WLED builds"
+      properties:
+        chan:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "number of channels per fixture"
+        gap:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "gap between the fixtures. makes addressing easier because you don't have to memorize odd numbers when climbing up onto a rig."
+        start:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "start address of the first fixture"
+        start-led:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "LED from which DMX fixtures start"
+        fixmap:
+          type: array
+          description: "fixture map"
+          minItems: 16
+          maxItems: 16
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        e131proxy:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "output this E1.31 (sACN) / ArtNet universe via MAX485 (0 = disabled)"

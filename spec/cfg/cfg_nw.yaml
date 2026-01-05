@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: WLED Network Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Nw:
+      type: object
+      properties:
+        ins:
+          type: array
+          description: "honestly no idea why this is a vector, WLED source only uses one element"
+          items:
+            $ref: '#/components/schemas/In'
+
+    In:
+      type: object
+      properties:
+        ssid:
+          type: string
+          description: "SSID of the network to connect to"
+        pskl:
+          type: integer
+          format: usize
+          minimum: 0
+          description: "Length of the wifi password"
+        ip:
+          type: array
+          description: "static IP of ESP"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        gw:
+          type: array
+          description: "gateway (router) IP"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        sn:
+          type: array
+          description: "most common subnet in home networks is 255:255:255:0"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255

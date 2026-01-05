@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: WLED Ethernet Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Eth:
+      type: object
+      properties:
+        relay:
+          $ref: '#/components/schemas/EthType'
+          description: "type of ethernet"
+        pin:
+          type: array
+          description: "pins used??? idk how this one works"
+          items:
+            type: integer
+            format: uint32
+            minimum: 0
+            maximum: 4294967295
+
+    EthType:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "Constants defined for Ethernet types"
+      oneOf:
+        - title: WledEthNone
+          const: 0
+        - title: WledEthWt32Eth01
+          const: 1
+        - title: WledEthEsp32Poe
+          const: 2
+        - title: WledEthWesp32
+          const: 3
+        - title: WledEthQuinled
+          const: 4
+        - title: WledEthTwilightlord
+          const: 5
+        - title: WledEthEsp32deux
+          const: 6
+        - title: WledEthEsp32ethkitve
+          const: 7
+        - title: WledEthQuinledOcta
+          const: 8
+        - title: WledEthAbcwledv43eth
+          const: 9
+        - title: WledEthSerg74
+          const: 10
+        - title: RSVD1
+          const: 11
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD2
+          const: 12
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD3
+          const: 13
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD4
+          const: 14
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD5
+          const: 15
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD6
+          const: 16
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD7
+          const: 17
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"
+        - title: RSVD8
+          const: 18
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types"

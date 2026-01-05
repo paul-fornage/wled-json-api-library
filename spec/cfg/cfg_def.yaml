@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: WLED Default Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Def:
+      type: object
+      description: "defaults"
+      properties:
+        ps:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "save preset to load after power-up"
+        on:
+          type: boolean
+          description: "turn on LEDs at power-up"
+        bri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "default brightness"

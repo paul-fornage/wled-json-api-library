@@ -1,0 +1,294 @@
+openapi: 3.1.0
+info:
+  title: WLED Hardware LED Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Led:
+      type: object
+      description: LED configuration
+      properties:
+        total:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "get total legth; no longer read as of WLED 14.0, but provided for compatibility on downgrade"
+        maxpwr:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "max milliamps"
+        ledma:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "milliamps per LED"
+        cct:
+          type: boolean
+          description: "CCT color correction of RGB color"
+        cr:
+          type: boolean
+          description: "CCT is calculated from RGB instead of using seg.cct"
+        cb:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "CCT Blending"
+        fps:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Target FPS"
+        rgbwm:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "global auto white mode override; 255 = Global auto white mode override disabled. Per-bus setting is used"
+        ld:
+          type: boolean
+          description: "use Global Led Buffer"
+        matrix:
+          $ref: '#/components/schemas/Matrix'
+          description: "if using 2d WLED"
+        ins:
+          type: array
+          description: "WLED busses"
+          items:
+            $ref: '#/components/schemas/PhysicalWledBusInfo'
+
+    PhysicalWledBusInfo:
+      type: object
+      properties:
+        start:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "start ig?"
+        len:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "length ig?"
+        pin:
+          type: array
+          description: "list of pins"
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        order:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Color order"
+        rev:
+          type: boolean
+          description: "is reversed?"
+        skip:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "skipped LEDs??"
+        type:
+          $ref: '#/components/schemas/LightCapability'
+          description: "Light type. see \"LightCapability\" enum documentation"
+        ref:
+          type: boolean
+          description: "is Off Refresh Required"
+        rgbwm:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "get Auto White Mode"
+        freq:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "frequency?? IG?"
+
+    Matrix:
+      type: object
+      properties:
+        mpc:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "fuck if I know (strip.panels in WLED source)"
+        panels:
+          type: array
+          description: "panels"
+          items:
+            $ref: '#/components/schemas/Panel'
+
+    Panel:
+      type: object
+      properties:
+        b:
+          type: boolean
+          description: "starts at bottom?"
+        r:
+          type: boolean
+          description: "starts on right?"
+        v:
+          type: boolean
+          description: "is vertical?"
+        s:
+          type: boolean
+          description: "is serpentine?"
+        x:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "x offset relative to the top left of matrix in LEDs"
+        y:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "y offset relative to the top left of matrix in LEDs"
+        h:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "height of the panel"
+        w:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "width of the panel"
+
+    LightCapability:
+      type: integer
+      format: uint8
+      description: |
+        Light capability byte 0bRCCCTTTT
+        bits 0/1/2/3: specifies a type of LED driver. A single "driver" may have different chip models but must have the same protocol/behavior
+        bits 4/5/6: specifies the class of LED driver - 0b000 (dec. 0-15)  unconfigured/reserved
+                                                      - 0b001 (dec. 16-31) digital (data pin only)
+                                                      - 0b010 (dec. 32-47) analog (PWM)
+                                                      - 0b011 (dec. 48-63) digital (data + clock / SPI)
+                                                      - 0b100 (dec. 64-79) unused/reserved
+                                                      - 0b101 (dec. 80-95) virtual network busses
+                                                      - 0b110 (dec. 96-111) unused/reserved
+                                                      - 0b111 (dec. 112-127) unused/reserved
+        bit 7 is reserved and set to 0
+      oneOf:
+        - title: TYPE_NONE
+          const: 0
+          description: light is not configured
+        - title: TYPE_RESERVED
+          const: 1
+          description: unused. Might indicate a "virtual"
+        - title: TYPE_WS2812_1CH
+          const: 18
+          description: white-only chips (1 channel per IC) (unused)
+        - title: TYPE_WS2812_1CH_X3
+          const: 19
+          description: white-only chips (3 channels per IC)
+        - title: TYPE_WS2812_2CH_X3
+          const: 20
+          description: CCT chips (1st IC controls WW + CW of 1st zone and CW of 2nd zone, 2nd IC controls WW of 2nd zone and WW + CW of 3rd zone)
+        - title: TYPE_WS2812_WWA
+          const: 21
+          description: amber + warm + cold white
+        - title: TYPE_WS2812_RGB
+          const: 22
+          description: the 'default config' shared by newer WS281X chips.
+        - title: TYPE_GS8608
+          const: 23
+          description: same driver as WS2812, but will require signal 2x per second (else displays test pattern)
+        - title: TYPE_WS2811_400KHZ
+          const: 24
+          description: half-speed WS2812 protocol, used by very old WS2811 units
+        - title: TYPE_TM1829
+          const: 25
+        - title: TYPE_UCS8903
+          const: 26
+        - title: TYPE_UCS8904
+          const: 29
+        - title: TYPE_SK6812_RGBW
+          const: 30
+        - title: TYPE_TM1814
+          const: 31
+        - title: TYPE_ONOFF
+          const: 40
+          description: binary output (relays etc.)
+        - title: TYPE_ANALOG_1CH
+          const: 41
+          description: single channel PWM. Uses value of brightest RGBW channel
+        - title: TYPE_ANALOG_2CH
+          const: 42
+          description: analog WW + CW
+        - title: TYPE_ANALOG_3CH
+          const: 43
+          description: analog RGB
+        - title: TYPE_ANALOG_4CH
+          const: 44
+          description: analog RGBW
+        - title: TYPE_ANALOG_5CH
+          const: 45
+          description: analog RGB + WW
+        - title: TYPE_WS2801
+          const: 50
+        - title: TYPE_APA102
+          const: 51
+        - title: TYPE_LPD8806
+          const: 52
+        - title: TYPE_P9813
+          const: 53
+        - title: TYPE_LPD6803
+          const: 54
+        - title: TYPE_NET_DDP_RGB
+          const: 80
+          description: network DDP RGB bus (master broadcast bus)
+        - title: TYPE_NET_E131_RGB
+          const: 81
+          description: network E131 RGB bus (master broadcast bus, unused)
+        - title: TYPE_NET_ARTNET_RGB
+          const: 82
+          description: network ArtNet RGB bus (master broadcast bus, unused)
+        - title: TYPE_NET_DDP_RGBW
+          const: 88
+          description: network DDP RGBW bus (master broadcast bus)
+        - title: RSVD1
+          const: 89
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD2
+          const: 90
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD3
+          const: 91
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD4
+          const: 92
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD5
+          const: 93
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD6
+          const: 94
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD7
+          const: 95
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types
+        - title: RSVD8
+          const: 96
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more ethernet types

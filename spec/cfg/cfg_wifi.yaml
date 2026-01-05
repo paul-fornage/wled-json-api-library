@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info:
+  title: WLED WiFi Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Wifi:
+      type: object
+      properties:
+        sleep:
+          type: boolean
+          description: "IDFK you're on your own"

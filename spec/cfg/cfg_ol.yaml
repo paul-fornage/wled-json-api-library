@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: WLED Overlay Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Ol:
+      type: object
+      description: "anolog clock stuff?"
+      properties:
+        clock:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "0: no overlay 1: analog clock 2: was single-digit clock 3: was cronixie"
+        cntdwn:
+          type: boolean
+          description: "Countdown mode; Clock will count down towards date"
+        min:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Overlay min; boundaries of overlay mode"
+        max:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Overlay max; boundaries of overlay mode"
+        o12pix:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "The pixel in your strip where \"midnight\" would be"
+        o5m:
+          type: boolean
+          description: "analog Clock 5 Minute Marks; Light pixels at every 5-minute position"
+        osec:
+          type: boolean
+          description: "Display seconds as trail of LEDs instead of a single pixel"

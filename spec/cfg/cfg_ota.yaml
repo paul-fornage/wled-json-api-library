@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info:
+  title: WLED OTA Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Ota:
+      type: object
+      properties:
+        lock:
+          type: boolean
+          description: "prevents OTA firmware updates without password. ALWAYS enable if system exposed to any public networks"
+        lock-wifi:
+          type: boolean
+          description: "prevents access to WiFi settings when OTA lock is enabled"
+        pskl:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "length of OTA password"
+        aota:
+          type: boolean
+          description: "ArduinoOTA allows easy updates directly from the IDE. Careful, it does not auto-disable when OTA lock is on"

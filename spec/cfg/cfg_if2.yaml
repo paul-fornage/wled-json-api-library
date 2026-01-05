@@ -1,0 +1,456 @@
+openapi: 3.1.0
+info:
+  title: WLED Interface 2 Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    If2:
+      type: object
+      properties:
+        sync:
+          $ref: '#/components/schemas/Sync'
+        nodes:
+          $ref: '#/components/schemas/Nodes'
+        live:
+          $ref: '#/components/schemas/Live'
+        va:
+          $ref: '#/components/schemas/Va'
+        mqtt:
+          $ref: '#/components/schemas/Mqtt'
+        hue:
+          $ref: '#/components/schemas/Hue'
+        ntp:
+          $ref: '#/components/schemas/Ntp'
+
+    Sync:
+      type: object
+      properties:
+        port0:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "WLED notifier default port"
+        port1:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "WLED notifier supplemental port"
+        recv:
+          $ref: '#/components/schemas/Recv'
+          description: "WLED notifier receive info"
+        send:
+          $ref: '#/components/schemas/Send'
+          description: "WLED notifier send info"
+
+    Recv:
+      type: object
+      properties:
+        bri:
+          type: boolean
+          description: "apply brightness from incoming notifications"
+        col:
+          type: boolean
+          description: "apply color"
+        fx:
+          type: boolean
+          description: "apply effects setup"
+        grp:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "sync receive groups this instance belongs to (bit mapped)"
+        seg:
+          type: boolean
+          description: "apply segment options"
+        sb:
+          type: boolean
+          description: "apply segment bounds (start, stop, offset)"
+
+    Send:
+      type: object
+      properties:
+        dir:
+          type: boolean
+          description: "send notification if change via UI or HTTP API"
+        btn:
+          type: boolean
+          description: "send if updated by button or infrared remote"
+        va:
+          type: boolean
+          description: "send notification if updated via Alexa"
+        hue:
+          type: boolean
+          description: "send notification if Hue light changes"
+        macro:
+          type: boolean
+          description: "send notification for macro"
+        grp:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "sync groups this instance syncs (bit mapped)"
+        ret:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Number of times a UDP sync message is retransmitted. Increase to increase reliability"
+
+    Nodes:
+      type: object
+      properties:
+        list:
+          type: boolean
+          description: "node List Enabled"
+        bcast:
+          type: boolean
+          description: "node Broadcast Enabled"
+
+    Live:
+      type: object
+      properties:
+        en:
+          type: boolean
+          description: "receive UDP realtime"
+        mso:
+          type: boolean
+          description: "use Main Segment Only"
+        port:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "DMX in port. E1.31 default is 5568, Art-Net is 6454"
+        mc:
+          type: boolean
+          description: "multicast or unicast; who the fuck knows which one is which"
+        dmx:
+          $ref: '#/components/schemas/LiveDmx'
+          description: "DMX info"
+        timeout:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "(ms timeout of realtime mode before returning to normal mode) / 100"
+        maxbri:
+          type: boolean
+          description: "enable to force max brightness if source has very dark colors that would be black"
+        no-gc:
+          type: boolean
+          description: "Disable gamma correction; activate if gamma correction is handled by the source"
+        offset:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "realtime LED offset"
+
+    LiveDmx:
+      type: object
+      description: "Dmx setting found in 'cfg. ...live.dmx', not the root 'cfg.dmx'"
+      properties:
+        uni:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "settings for E1.31 (sACN) protocol (only DMX_MODE_MULTIPLE_* can span over consecutive universes)"
+        seqskip:
+          type: boolean
+          description: "freeze instead of flickering"
+        e131prio:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "E1.31 port priority (if != 0 priority handling is active)"
+        addr:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "DMX start address of fixture, a.k.a. first Channel [for E1.31 (sACN) protocol]"
+        dss:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "DMX channel spacing; Number of void/unused channels between each segments DMX channels"
+        mode:
+          $ref: '#/components/schemas/DmxMode'
+          description: "DMX mode"
+
+    DmxMode:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "DMX modes"
+      oneOf:
+        - title: DMX_MODE_DISABLED
+          const: 0
+          description: "Not used"
+        - title: DMX_MODE_SINGLE_RGB
+          const: 1
+          description: "all LEDs same RGB color (3 channels)"
+        - title: DMX_MODE_SINGLE_DRGB
+          const: 2
+          description: "all LEDs same RGB color and master dimmer (4 channels)"
+        - title: DMX_MODE_EFFECT
+          const: 3
+          description: "trigger standalone effects of WLED (15 channels)"
+        - title: DMX_MODE_EFFECT_W
+          const: 7
+          description: "trigger standalone effects of WLED (18 channels)"
+        - title: DMX_MODE_MULTIPLE_RGB
+          const: 4
+          description: "every LED is addressed with its own RGB (ledCount * 3 channels)"
+        - title: DMX_MODE_MULTIPLE_DRGB
+          const: 5
+          description: "every LED is addressed with its own RGB and share a master dimmer (ledCount * 3 + 1 channels)"
+        - title: DMX_MODE_MULTIPLE_RGBW
+          const: 6
+          description: "every LED is addressed with its own RGBW (ledCount * 4 channels)"
+        - title: DMX_MODE_EFFECT_SEGMENT
+          const: 8
+          description: "trigger standalone effects of WLED (15 channels per segment)"
+        - title: DMX_MODE_EFFECT_SEGMENT_W
+          const: 9
+          description: "trigger standalone effects of WLED (18 channels per segment)"
+        - title: DMX_MODE_PRESET
+          const: 10
+          description: "apply presets (1 channel)"
+        - title: RSVD1
+          const: 11
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD2
+          const: 12
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD3
+          const: 13
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD4
+          const: 14
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD5
+          const: 15
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+        - title: RSVD6
+          const: 16
+          description: "Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more Night Light modes"
+
+    Va:
+      type: object
+      properties:
+        alexa:
+          type: boolean
+          description: "enable device discovery by Amazon Echo"
+        macros:
+          type: array
+          description: "[macroAlexaOn, macroAlexaOff]"
+          minItems: 2
+          maxItems: 2
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        p:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 9
+          description: "number of presets to expose to Alexa, starting from preset 1, up to 9"
+
+    Mqtt:
+      type: object
+      properties:
+        en:
+          type: boolean
+          description: "MQTT enabled?"
+        broker:
+          type: string
+          description: "both domains and IPs should work (no SSL)"
+        port:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "MQTT port"
+        user:
+          type: string
+          description: "optional: username for MQTT auth"
+        pskl:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "optional: length of password for MQTT auth"
+        cid:
+          type: string
+          description: "override the client ID"
+        rtn:
+          type: boolean
+          description: "retain brightness and color"
+        topics:
+          $ref: '#/components/schemas/Topics'
+          description: "mqtt topics"
+
+    Topics:
+      type: object
+      properties:
+        device:
+          type: string
+          description: "main MQTT topic (individual per device, default is wled/mac)"
+        group:
+          type: string
+          description: "second MQTT topic (for example to group devices)"
+
+    Hue:
+      type: object
+      properties:
+        en:
+          type: boolean
+          description: "poll hue bridge for light state"
+        id:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "ID of hue lamp to sync to. Find the ID in the hue app (\"about\" section)"
+        iv:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "(low values (< 1sec) may cause lag but offer quicker response) / 100"
+        recv:
+          $ref: '#/components/schemas/Recv2'
+          description: "hue receiver info"
+        ip:
+          type: array
+          description: "hue IP"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+
+    Recv2:
+      type: object
+      properties:
+        on:
+          type: boolean
+          description: "hue Apply On Off"
+        bri:
+          type: boolean
+          description: "hue Apply Bri"
+        col:
+          type: boolean
+          description: "hue Apply Color"
+
+    Ntp:
+      type: object
+      properties:
+        en:
+          type: boolean
+          description: "get internet time. Only required if you use clock overlays or time-activated macros"
+        host:
+          type: string
+          description: "NTP server to use"
+        tz:
+          $ref: '#/components/schemas/TimeZoneId'
+          description: "Timezone ID. Refer to timezones array in wled10_ntp.ino"
+        offset:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Seconds to offset from UTC before timzone calculation"
+        ampm:
+          type: boolean
+          description: "Use AM/PM; 12h/24h clock format"
+        ln:
+          type: number
+          format: float64
+          description: "longitude"
+        lt:
+          type: number
+          format: float64
+          description: "latitude"
+
+    TimeZoneId:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "Time zone IDs"
+      oneOf:
+        - title: TZ_UTC
+          const: 0
+        - title: TZ_UK
+          const: 1
+        - title: TZ_EUROPE_CENTRAL
+          const: 2
+        - title: TZ_EUROPE_EASTERN
+          const: 3
+        - title: TZ_US_EASTERN
+          const: 4
+        - title: TZ_US_CENTRAL
+          const: 5
+        - title: TZ_US_MOUNTAIN
+          const: 6
+        - title: TZ_US_ARIZONA
+          const: 7
+        - title: TZ_US_PACIFIC
+          const: 8
+        - title: TZ_CHINA
+          const: 9
+        - title: TZ_JAPAN
+          const: 10
+        - title: TZ_AUSTRALIA_EASTERN
+          const: 11
+        - title: TZ_NEW_ZEALAND
+          const: 12
+        - title: TZ_NORTH_KOREA
+          const: 13
+        - title: TZ_INDIA
+          const: 14
+        - title: TZ_SASKACHEWAN
+          const: 15
+        - title: TZ_AUSTRALIA_NORTHERN
+          const: 16
+        - title: TZ_AUSTRALIA_SOUTHERN
+          const: 17
+        - title: TZ_HAWAII
+          const: 18
+        - title: TZ_NOVOSIBIRSK
+          const: 19
+        - title: TZ_ANCHORAGE
+          const: 20
+        - title: TZ_MX_CENTRAL
+          const: 21
+        - title: TZ_PAKISTAN
+          const: 22
+        - title: TZ_RSVD1
+          const: 23
+        - title: TZ_RSVD2
+          const: 24
+        - title: TZ_RSVD3
+          const: 25
+        - title: TZ_RSVD4
+          const: 26
+        - title: TZ_RSVD5
+          const: 27
+        - title: TZ_RSVD6
+          const: 28
+        - title: TZ_INIT
+          const: 255

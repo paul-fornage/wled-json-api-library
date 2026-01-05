@@ -1,0 +1,242 @@
+openapi: 3.1.0
+info:
+  title: WLED Hardware Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Hw:
+      type: object
+      description: "Hardware info"
+      properties:
+        led:
+          $ref: './cfg_hw_led.yaml#/components/schemas/Led'
+          description: "Led info"
+        com:
+          type: array
+          description: "List of color order maps"
+          items:
+            $ref: '#/components/schemas/ColorOrderMap'
+        btn:
+          $ref: '#/components/schemas/Btn'
+          description: "Info about connected buttons"
+        ir:
+          $ref: '#/components/schemas/Ir'
+          description: "info about IR receiver"
+        relay:
+          $ref: '#/components/schemas/Relay'
+          description: "info about relay"
+        baud:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "baud rate/100"
+        if:
+          $ref: '#/components/schemas/If'
+          description: "interface info"
+
+    Btn:
+      type: object
+      properties:
+        max:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "just information about max number of buttons (not actually used)"
+        pull:
+          type: boolean
+          description: "idfk"
+        ins:
+          type: array
+          description: "balls, testicles"
+          items:
+            $ref: '#/components/schemas/In3'
+        tt:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Touch threshold"
+        mqtt:
+          type: boolean
+          description: "button Publish Mqtt"
+
+    Relay:
+      type: object
+      properties:
+        pin:
+          type: integer
+          format: int8
+          minimum: -128
+          maximum: 127
+          description: "pin for the relay"
+        rev:
+          type: boolean
+          description: "negate output"
+
+    ColorOrderMap:
+      type: object
+      properties:
+        start:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "Probably the start index?"
+        stop:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          writeOnly: true
+          description: "stop index? probably?, could not find in latest source, but its in the WLED 14.0 binary"
+        len:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "length ig?"
+        order:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Whatever the fuck 'order' is"
+
+    ButtonMacros:
+      type: object
+      properties:
+        "0":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "preset to apply when button is pressed once, or default behaviour if 0."
+        "1":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "preset to apply when button is pressed for a long time, or default behaviour if 0."
+        "2":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "preset to apply when button is pressed twice, or default behaviour if 0."
+
+    Ir:
+      type: object
+      properties:
+        pin:
+          type: integer
+          format: int8
+          minimum: -128
+          maximum: 127
+          description: "Pin for this sensor. presumably fucking explodes if negative"
+        type:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "IR type 0 is disabled, go scour the undocumented WLED source code for the rest"
+        sel:
+          type: boolean
+          description: "apply IR to all selected segments; who knows what happens when false"
+
+    If:
+      type: object
+      properties:
+        i2c-pin:
+          type: array
+          description: "[i2c_sda pin, i2c_scl pin]"
+          minItems: 2
+          maxItems: 2
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+        spi-pin:
+          type: array
+          description: "[spi_mosi pin, spi_sclk pin, spi_miso pin]"
+          minItems: 3
+          maxItems: 3
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+
+    In3:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ButtonType'
+          description: "Button type"
+        pin:
+          type: array
+          description: "Button pin"
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+        macros:
+          $ref: '#/components/schemas/ButtonMacros'
+          description: "Button macros"
+
+    ButtonType:
+      type: integer
+      format: uint8
+      minimum: 0
+      maximum: 255
+      description: "Various types"
+      oneOf:
+        - title: BTN_TYPE_NONE
+          const: 0
+          description: None
+        - title: BTN_TYPE_RESERVED
+          const: 1
+          description: Reserved
+        - title: BTN_TYPE_PUSH
+          const: 2
+          description: Push button that is considered "pushed" when at logic low
+        - title: BTN_TYPE_PUSH_ACT_HIGH
+          const: 3
+          description: Push button that is considered "pushed" when at logic high
+        - title: BTN_TYPE_SWITCH
+          const: 4
+          description: A switch with no defined on or off
+        - title: BTN_TYPE_PIR_SENSOR
+          const: 5
+          description: PIR sensor
+        - title: BTN_TYPE_TOUCH
+          const: 6
+          description: Touch sensor (presumably using the built in touch sensor of the ESP32)
+        - title: BTN_TYPE_ANALOG
+          const: 7
+          description: Not really a button, but there you go
+        - title: BTN_TYPE_ANALOG_INVERTED
+          const: 8
+          description: BTN_TYPE_ANALOG, but inverted
+        - title: RSVD1
+          const: 9
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours
+        - title: RSVD2
+          const: 10
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours
+        - title: RSVD3
+          const: 11
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours
+        - title: RSVD4
+          const: 12
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours
+        - title: RSVD5
+          const: 13
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours
+        - title: RSVD6
+          const: 14
+          description: Reserved to keep some semblance of backwards compatibility when new WLED versions come out with more AP behaviours

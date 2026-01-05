@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: WLED Timers Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Timers:
+      type: object
+      properties:
+        cntdwn:
+          $ref: '#/components/schemas/Cntdwn'
+          description: "Countdown"
+        ins:
+          type: array
+          description: "Countdown mode; Clock will count down towards date"
+          items:
+            $ref: '#/components/schemas/Ins'
+
+    Cntdwn:
+      type: object
+      properties:
+        goal:
+          $ref: '#/components/schemas/Goal'
+          description: "The time that the countdown is counting down towards."
+        macro:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Macro (presumably this is executed on when countdown reaches goal"
+
+    Goal:
+      type: object
+      description: "You can figure this one out, its a date time"
+      properties:
+        "0":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "year"
+        "1":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "month"
+        "2":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "day"
+        "3":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "hour"
+        "4":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "minute"
+        "5":
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "second"
+
+    Ins:
+      type: object
+      properties:
+        en:
+          type: boolean
+          description: "enabled?"
+        hour:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 23
+          description: "hour, I don't think this one needs much explaining"
+        min:
+          type: integer
+          format: int8
+          minimum: -128
+          maximum: 127
+          description: "minute, I don't think this one needs much explaining"
+        macro:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Macro to execute when triggered"
+        start:
+          $ref: '#/components/schemas/MonthDay'
+          description: "Day and month that this timer turns on every year"
+        end:
+          $ref: '#/components/schemas/MonthDay'
+          description: "Day and month that this timer turns off every year"
+
+    MonthDay:
+      type: object
+      properties:
+        mon:
+          type: integer
+          format: uint8
+          minimum: 1
+          maximum: 12
+          description: "the month (actually 4 bits, but cope)"
+        day:
+          type: integer
+          format: uint8
+          minimum: 1
+          maximum: 31
+          description: "Day and month that this timer turns off every year"

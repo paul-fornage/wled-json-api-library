@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: WLED Identity Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Id:
+      type: object
+      properties:
+        mdns:
+          type: string
+          description: "mDNS address (*.local, replaced by wledXXXXXX if default is used)"
+        name:
+          type: string
+          description: "Server Description; Name of module - use default"
+        inv:
+          type: string
+          description: "Alexa invocation name; speech control name of device. Choose something voice-to-text can understand"
+        sui:
+          type: boolean
+          description: "Simplified UI"

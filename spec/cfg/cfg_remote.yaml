@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: WLED Remote Configuration
+  version: 1.0.0
+
+components:
+  schemas:
+    Remote:
+      type: object
+      properties:
+        remote_enabled:
+          type: boolean
+          description: "is remote enabled"
+        linked_remote:
+          type: string
+          description: "linked remote? idk"
