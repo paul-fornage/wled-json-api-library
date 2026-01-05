@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: WLED Live Data
+  version: 1.0.0
+
+components:
+  schemas:
+    Live:
+      type: object
+      description: "Not Done, broken, dont use"
+      properties:
+        leds:
+          type: array
+          description: "Not Done, broken, dont use"
+          items:
+            type: string
+        n:
+          type: integer
+          format: int64
+          description: "Not Done, broken, dont use"

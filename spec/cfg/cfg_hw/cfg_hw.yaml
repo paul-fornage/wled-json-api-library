@@ -90,7 +90,7 @@ components:
           format: uint16
           minimum: 0
           maximum: 65535
-          writeOnly: true
+          readOnly: true
           description: "stop index? probably?, could not find in latest source, but its in the WLED 14.0 binary"
         len:
           type: integer

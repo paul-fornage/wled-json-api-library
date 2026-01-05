@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: WLED State Info
+  version: 1.0.0
+
+components:
+  schemas:
+    StateInfo:
+      type: object
+      required:
+        - state
+        - info
+      properties:
+        state:
+          $ref: './state.yaml#/components/schemas/State'
+        info:
+          $ref: './info.yaml#/components/schemas/Info'

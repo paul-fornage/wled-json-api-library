@@ -1,0 +1,398 @@
+openapi: 3.1.0
+info:
+  title: WLED Info
+  version: 1.0.0
+
+components:
+  schemas:
+    Info:
+      type: object
+      properties:
+        ver:
+          type: string
+          description: "Version name."
+        vid:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Build ID (YYMMDDB, B = daily build index)."
+        leds:
+          $ref: '#/components/schemas/Leds'
+          description: "Contains info about the LED setup."
+        str:
+          type: boolean
+          description: "sync Toggle Receive. UIs which only have a single button for sync should toggle send+receive if this is true, only send otherwise"
+        name:
+          type: string
+          description: "Friendly name of the light. Intended for display in lists and titles. Name of module - default is WLED"
+        udpport:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "The UDP port for realtime packets and WLED broadcast. WLED notifier default port"
+        live:
+          type: boolean
+          description: "If true, the software is currently receiving realtime data via UDP or E1.31."
+        liveseg:
+          type: integer
+          format: int16
+          minimum: -32768
+          maximum: 32767
+          description: "main segment id if its active, -1 otherwise"
+        lm:
+          type: string
+          description: |
+            Info about the realtime data source
+            WLED SOURCE (as of ~wled 14.0:
+              switch (realtimeMode) {
+                case REALTIME_MODE_INACTIVE: root["lm"] = ""; break;
+                case REALTIME_MODE_GENERIC:  root["lm"] = ""; break;
+                case REALTIME_MODE_UDP:      root["lm"] = F("UDP"); break;
+                case REALTIME_MODE_HYPERION: root["lm"] = F("Hyperion"); break;
+                case REALTIME_MODE_E131:     root["lm"] = F("E1.31"); break;
+                case REALTIME_MODE_ADALIGHT: root["lm"] = F("USB Adalight/TPM2"); break;
+                case REALTIME_MODE_ARTNET:   root["lm"] = F("Art-Net"); break;
+                case REALTIME_MODE_TPM2NET:  root["lm"] = F("tpm2.net"); break;
+                case REALTIME_MODE_DDP:      root["lm"] = F("DDP"); break;
+              }
+        lip:
+          type: string
+          description: "Realtime data source IP address"
+        ws:
+          type: integer
+          format: int8
+          minimum: -128
+          maximum: 127
+          description: "-1 to 8; Number of currently connected WebSockets clients. -1 indicates that WS is unsupported in this build."
+        fxcount:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Number of effects included."
+        palcount:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "Number of palettes configured. will only return built-in palette count"
+        cpalcount:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "custom palette count"
+        maps:
+          type: array
+          description: "available ledmaps"
+          items:
+            $ref: '#/components/schemas/Map'
+        wifi:
+          $ref: '#/components/schemas/Wifi'
+          description: "Info about wifi"
+        fs:
+          $ref: '#/components/schemas/Fs'
+          description: "Info about the embedded LittleFS filesystem (since 0.11.0)"
+        ndc:
+          type: integer
+          format: int16
+          minimum: -32768
+          maximum: 32767
+          description: "-1 to 255; Number of other WLED devices discovered on the network. -1 if Node discovery disabled. (since 0.12.0)"
+        txPower:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "only present on debug builds. (int) WiFi.getTxPower();"
+        sleep:
+          type: boolean
+          description: "only present on debug builds. (bool) WiFi.getSleep();"
+        arch:
+          type: string
+          description: "Name of the platform."
+        core:
+          type: string
+          description: "Version of the underlying (Arduino core) SDK."
+        resetReason0:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "only present on debug esp32 builds. (int)rtc_get_reset_reason(0);"
+        resetReason1:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "only present on debug esp32 builds. (int)rtc_get_reset_reason(1);"
+        resetReason:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "only present on debug esp8266 builds. (int)rtc_get_reset_reason(0);"
+        lwip:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "0-2; Version of LwIP. 1 or 2 on ESP8266, 0 (does not apply) on ESP32. Deprecated, removal in 0.14.0"
+        freeheap:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Bytes of heap memory (RAM) currently available. Problematic if <10k."
+        psram:
+          type: integer
+          format: uint64
+          minimum: 0
+          maximum: 18446744073709551615
+          description: "ESP.getFreePsram(); only present when hardware supports psram"
+        uptime:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Time since the last boot/reset in seconds."
+        time:
+          type: string
+          description: "The current time in human readable format"
+        opt:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: |
+            Used for debugging purposes only. bit map of build info
+                #ifdef WLED_DEBUG_HOST
+                    os |= 0x0100;
+                    if (!netDebugEnabled) os &= ~0x0080;
+                #endif
+            0x80: debug enabled
+            0x40: disable alexa
+            0x20: Depreceated, used to be Blynk support, may be repurposed
+            0x10: usermod Chronixie
+            0x08: disable filesystem build tag
+            0x04: disable hue sync build tag
+            0x02: enable AdaLight build tag
+            0x01: disable OTA build tag
+        brand:
+          type: string
+          description: "The producer/vendor of the light. Always WLED for standard installations."
+        product:
+          type: string
+          description: "The product name. Always FOSS for standard installations."
+        btype:
+          type: string
+          description: |
+            The origin of the build.
+            src if a release version is compiled from source,
+            bin for an official release image,
+            dev for a development build (regardless of src/bin origin)
+            and exp for experimental versions.
+            ogn if the image is flashed to hardware by the vendor.
+            Removed as of v0.10
+        mac:
+          type: string
+          description: "The hexadecimal hardware MAC address of the light, lowercase and without colons."
+        ip:
+          type: string
+          description: "The IP address of this instance. Empty string if not connected. (since 0.13.0). format: sprintf(s, \"%d.%d.%d.%d\", localIP[0], localIP[1], localIP[2], localIP[3]);"
+
+    Leds:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "1 to 1200; Total LED count. will include virtual/nonexistent pixels in matrix"
+        pwr:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to 65000; Current LED power usage in milliamps as determined by the ABL. (0 if ABL is disabled.)<-maybe"
+        fps:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "Returns the refresh rate of the LED strip. Useful for finding out whether a given setup is fast enough. Only updates on show() or is set to 0 fps if last show is more than 2 secs ago, so accuracy varies"
+        maxpwr:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to 65000; Maximum power budget in milliamps for the ABL. 0 if ABL is disabled."
+        maxseg:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Maximum number of segments supported by this version. returns maximum number of supported segments (fixed value)"
+        matrix:
+          $ref: '#/components/schemas/MatrixDims'
+          description: "Dimensions of matrix; not included in all builds"
+        seglc:
+          type: array
+          description: |
+            Per-segment virtual light capabilities
+
+            !!! this is a bitmap using the masks found in ```SegmentLightCapability```
+
+            !!! Not ```LightCapability```
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        lc:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Logical AND of all active segment's virtual light capabilities"
+        rgbw:
+          type: boolean
+          description: "true if LEDs are 4-channel (RGB + White). (deprecated, use info.leds.lc)"
+        wv:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "WLED WIKI SAYS BOOL??? true if a white channel slider should be displayed. (available since 0.10.0, deprecated, use info.leds.lc)"
+        cct:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "WLED WIKI SAYS BOOL??? true if the light supports color temperature control (available since 0.13.0, deprecated, use info.leds.lc)"
+        pin:
+          type: array
+          description: "LED strip pin(s). Always one element. Removed as of v0.13"
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+        i2c:
+          type: array
+          description: "[i2c_sda pin, i2c_scl pin]; only in debug builds"
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+          minItems: 2
+          maxItems: 2
+        spi:
+          type: array
+          description: "[spi_mosi pin, spi_sclk pin, spi_miso pin]; only in debug builds"
+          items:
+            type: integer
+            format: int8
+            minimum: -128
+            maximum: 127
+          minItems: 3
+          maxItems: 3
+
+    Map:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "index of an avilable led map"
+        n:
+          type: string
+          description: "Led map name. only included in builds for hardware with sufficient processing power (currently just everything but the esp8266)"
+
+    Wifi:
+      type: object
+      properties:
+        bssid:
+          type: string
+          description: "Return the current bssid / mac associated with the network if configured"
+        rssi:
+          type: integer
+          format: int64
+          description: |
+            undocumented??? heres the WLED source as of WLED ~14.0:
+            int qrssi = WiFi.RSSI(); <- thats an i8
+              wifi_info[F("rssi")] = qrssi; <- but thats a u32
+              wifi_info[F("signal")] = getSignalQuality(qrssi);
+            I'm going to make RSSI an i64 to include both in case this gets fixed in the future.
+            blame me for 4 bytes
+        signal:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "0-100; Relative signal quality of the current connection. use this over RSSI unless for some reason you feel cooler doing the conversion in your head"
+        channel:
+          type: integer
+          format: int32
+          description: "1 to 14; The current WiFi channel. WLED source uses i32 so i will too"
+
+    Fs:
+      type: object
+      properties:
+        u:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Estimate of used filesystem space in kilobytes"
+        t:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Total filesystem size in kilobytes"
+        pmt:
+          type: integer
+          format: uint64
+          minimum: 0
+          maximum: 18446744073709551615
+          description: "Unix timestamp for the last modification to the presets.json file. Not accurate after boot or after using /edit"
+
+    MatrixDims:
+      type: object
+      description: "these define matrix width & height (max. segment dimensions)"
+      properties:
+        w:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "max width"
+        h:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "max height"
+
+    SegmentLightCapability:
+      type: integer
+      format: uint8
+      description: |
+        NOT TO BE CONFUSED WITH LightCapability.
+        this is a bitmap of 3 basic capabilities
+
+        I know its confusing. Believe me.
+      oneOf:
+        - title: SEG_CAPABILITY_RGB
+          const: 0x01
+        - title: SEG_CAPABILITY_W
+          const: 0x02
+        - title: SEG_CAPABILITY_CCT
+          const: 0x04

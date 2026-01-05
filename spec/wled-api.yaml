@@ -6,6 +6,108 @@ info:
     OpenAPI specification for the WLED JSON API.
     Converted from Rust structures with strict typing preservation.
 
+paths:
+  /cfg:
+    get:
+      summary: Configuration endpoint
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './cfg/cfg.yaml#/components/schemas/Config'
+  /effects:
+    get:
+      summary: Effects list
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './effects.yaml#/components/schemas/Effects'
+  /info:
+    get:
+      summary: Device information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './info.yaml#/components/schemas/Info'
+  /live:
+    get:
+      summary: Live data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './live.yaml#/components/schemas/Live'
+  /net:
+    get:
+      summary: Network scan information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './net.yaml#/components/schemas/Net'
+  /nodes:
+    get:
+      summary: Node discovery
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './nodes.yaml#/components/schemas/Nodes'
+  /palettes:
+    get:
+      summary: Color palettes
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './palettes.yaml#/components/schemas/Palettes'
+  /state:
+    get:
+      summary: Current state
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './state.yaml#/components/schemas/State'
+    post:
+      summary: Update state
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './state.yaml#/components/schemas/State'
+      responses:
+        '200':
+          description: State updated
+  /state_info:
+    get:
+      summary: Combined state and info
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './state_info.yaml#/components/schemas/StateInfo'
+
 components:
   schemas:
     WledApi:
@@ -15,12 +117,27 @@ components:
         cfg:
           $ref: './cfg/cfg.yaml#/components/schemas/Config'
           description: "Configuration endpoint"
-        # Additional API endpoints will be added here as they are converted:
-        # effects: Effects list
-        # info: Device information
-        # live: Live data
-        # net: Network information
-        # nodes: Node discovery
-        # palettes: Color palettes
-        # state: Current state
-        # state_info: State information
+        effects:
+          $ref: './effects.yaml#/components/schemas/Effects'
+          description: "Effects list"
+        info:
+          $ref: './info.yaml#/components/schemas/Info'
+          description: "Device information"
+        live:
+          $ref: './live.yaml#/components/schemas/Live'
+          description: "Live data (Not Done, broken, dont use)"
+        net:
+          $ref: './net.yaml#/components/schemas/Net'
+          description: "Network scan information"
+        nodes:
+          $ref: './nodes.yaml#/components/schemas/Nodes'
+          description: "Node discovery"
+        palettes:
+          $ref: './palettes.yaml#/components/schemas/Palettes'
+          description: "Color palettes"
+        state:
+          $ref: './state.yaml#/components/schemas/State'
+          description: "Current state"
+        state_info:
+          $ref: './state_info.yaml#/components/schemas/StateInfo'
+          description: "Combined state and info"

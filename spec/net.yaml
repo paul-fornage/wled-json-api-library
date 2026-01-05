@@ -1,0 +1,90 @@
+openapi: 3.1.0
+info:
+  title: WLED Network Scan
+  version: 1.0.0
+
+components:
+  schemas:
+    Net:
+      type: object
+      properties:
+        networks:
+          type: array
+          description: "list of networks found by most recent scan"
+          items:
+            $ref: '#/components/schemas/Network'
+
+    Network:
+      type: object
+      properties:
+        ssid:
+          type: string
+          description: "SSID"
+        rssi:
+          type: integer
+          format: int32
+          description: "RSSI"
+        bssid:
+          type: string
+          description: "String MAC / BSSID of scanned wifi"
+        channel:
+          type: integer
+          format: int32
+          description: "Wifi channel. normally these are 1-14 but WLED source uses i32 at time of writing"
+        enc:
+          $ref: '#/components/schemas/ApBehaviourEnum'
+          description: "encryption type (enum wl_enc_type) of the specified item on the networks scanned list"
+
+    ApBehaviourEnum:
+      type: integer
+      format: uint8
+      description: "words do not begin to explain how hard this was to find. its buried in the esp core arduino framework."
+      oneOf:
+        - title: WIFI_AUTH_OPEN
+          const: 0
+          description: "authenticate mode : open"
+        - title: WIFI_AUTH_WEP
+          const: 1
+          description: "authenticate mode : WEP"
+        - title: WIFI_AUTH_WPA_PSK
+          const: 2
+          description: "authenticate mode : WPA_PSK"
+        - title: WIFI_AUTH_WPA2_PSK
+          const: 3
+          description: "authenticate mode : WPA2_PSK"
+        - title: WIFI_AUTH_WPA_WPA2_PSK
+          const: 4
+          description: "authenticate mode : WPA_WPA2_PSK"
+        - title: WIFI_AUTH_WPA2_ENTERPRISE
+          const: 5
+          description: "authenticate mode : WPA2_ENTERPRISE"
+        - title: WIFI_AUTH_MAX
+          const: 6
+          description: "probaly you found a CIA AP. Run"
+        - title: RSVD1
+          const: 7
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD2
+          const: 8
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD3
+          const: 9
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD4
+          const: 10
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD5
+          const: 11
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD6
+          const: 12
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD7
+          const: 13
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD8
+          const: 14
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"
+        - title: RSVD9
+          const: 15
+          description: "Reserved to keep some semblance of backwards compatibility when new versions of whatever the fuck this came from come out"

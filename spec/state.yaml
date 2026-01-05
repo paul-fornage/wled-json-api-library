@@ -1,0 +1,382 @@
+openapi: 3.1.0
+info:
+  title: WLED State
+  version: 1.0.0
+
+components:
+  schemas:
+    State:
+      type: object
+      properties:
+        on:
+          type: boolean
+          description: "On/Off state of the light"
+        bri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Brightness of the light. If on is false, contains last brightness when light was on (aka brightness when on is set to true. Setting bri to 0 is supported but it is recommended to use the range 1-255 and use on: false to turn off. The state response will never have the value 0 for bri."
+        transition:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Duration of the crossfade between different colors/brightness levels. One unit is 100ms, so a value of 4 results in a transition of 400ms."
+        tt:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Similar to transition, but applies to just the current API call. Not included in state response."
+        ps:
+          type: integer
+          format: int32
+          description: "-1 to 65535; ID of currently set preset. 1~17~ can be used to iterate through presets 1-17."
+        psave:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "1 to 16 (250 in 0.11); Save current light config to specified preset slot. Not included in state response."
+        pl:
+          type: integer
+          format: int8
+          oneOf:
+            - const: -1
+              title: "Off"
+            - const: 0
+              title: "On"
+          description: "-1 to 0; \tID of currently set playlist. For now, this sets the preset cycle feature, -1 is off and 0 is on."
+        nl:
+          $ref: '#/components/schemas/Nl'
+          description: "Night light"
+        udpn:
+          $ref: '#/components/schemas/Udpn'
+          description: "UDP sync"
+        v:
+          type: boolean
+          description: "If set to true in a JSON POST command, the response will contain the full JSON state object. Not included in state response"
+        rb:
+          type: boolean
+          description: "If set to true, device will reboot immediately. Not included in state response."
+        live:
+          type: boolean
+          description: "If set to true, enters realtime mode and blanks the LEDs. The realtime timeout option does not have an effect when this command is used, WLED will stay in realtime mode until the state (color/effect/segments, excluding brightness) is changed. It is expected that {\"live\":false} is sent once live data sending is terminated. Not included in state response."
+        lor:
+          type: integer
+          format: uint8
+          oneOf:
+            - const: 0
+              title: "Off"
+            - const: 1
+              title: "Until Live Data Ends"
+            - const: 2
+              title: "Until ESP Reboot"
+          description: "0, 1, or 2; Live data override. 0 is off, 1 is override until live data ends, 2 is override until ESP reboot (available since 0.10.0)"
+        time:
+          type: integer
+          format: uint32
+          minimum: 0
+          maximum: 4294967295
+          description: "Set module time to unix timestamp. Not included in state response."
+        mainseg:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "0 to info.leds.maxseg-1; Main Segment"
+        playlist:
+          $ref: '#/components/schemas/Playlist'
+          description: "Custom preset playlists. Not included in state response (available since 0.11.0)"
+        seg:
+          type: array
+          description: "Array of segment objects; Segments are individual parts of the LED strip. In 0.9.0 this will enables running different effects on differentparts of the strip."
+          items:
+            $ref: '#/components/schemas/Seg'
+
+    Nl:
+      type: object
+      properties:
+        on:
+          type: boolean
+          description: "Nightlight currently active"
+        dur:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Duration of nightlight in minutes"
+        fade:
+          type: boolean
+          description: "If true, the light will gradually dim over the course of the nightlight duration. If false, it will instantly turn to the target brightness once the duration has elapsed. Removed in 0.13.0 (use mode instead)"
+        mode:
+          type: integer
+          format: uint8
+          oneOf:
+            - const: 0
+              title: "Instant"
+            - const: 1
+              title: "Fade"
+            - const: 2
+              title: "Color Fade"
+            - const: 3
+              title: "Sunrise"
+          description: "0 to 3; Nightlight mode (0: instant, 1: fade, 2: color fade, 3: sunrise) (available since 0.10.2)"
+        tbri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Target brightness of nightlight feature"
+        rem:
+          type: integer
+          format: int16
+          minimum: -1
+          maximum: 15300
+          readOnly: true
+          description: "-1 to 15300; Remaining nightlight duration in seconds, -1 if not active. Only in state response, can not be set."
+
+    Udpn:
+      type: object
+      properties:
+        send:
+          type: boolean
+          description: "Send WLED broadcast (UDP sync) packet on state change"
+        recv:
+          type: boolean
+          description: "Receive broadcast packets"
+        sgrp:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Bitfield for broadcast send groups 1-8"
+        rgrp:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Bitfield for broadcast receive groups 1-8"
+        nn:
+          type: boolean
+          description: "Don't send a broadcast packet (applies to just the current API call). Not included in state response."
+
+    Seg:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int16
+          minimum: -1
+          description: "-1 to info.maxseg -1; Zero-indexed ID of the segment. May be omitted, in that case the ID will be inferred from the order of the segment objects in the seg array. -1 means apply to all selected segments"
+        start:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to info.leds.count -1; LED the segment starts at."
+        stop:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to info.leds.count; LED the segment stops at, not included in range. If stop is set to a lower or equal value than start (setting to 0 is recommended), the segment is invalidated and deleted."
+        len:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to info.leds.count; Length of the segment (stop - start). stop has preference, so if it is included, len is ignored."
+        grp:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Grouping (how many consecutive LEDs of the same segment will be grouped to the same color)"
+        spc:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Spacing (how many LEDs are turned off and skipped between each group)"
+        of:
+          type: integer
+          format: int16
+          minimum: -32768
+          maximum: 32767
+          description: "-len+1 to len; \tOffset (how many LEDs to rotate the virtual start of the segments, available since 0.13.0)"
+        on:
+          type: boolean
+          description: "Turns on and off the individual segment. (available since 0.10.0)"
+        frz:
+          type: boolean
+          description: "freezes/unfreezes the current effect"
+        bri:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Sets the individual segment brightness (available since 0.10.0)"
+        cct:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 10091
+          description: "0 to 255 or 1900 to 10091; White spectrum color temperature (available since 0.13.0)"
+        set:
+          type: integer
+          format: uint8
+          oneOf:
+            - const: 0
+              title: "Set 0"
+            - const: 1
+              title: "Set 1"
+            - const: 2
+              title: "Set 2"
+            - const: 3
+              title: "Set 3"
+          description: |
+            Undocumented?????? TODO
+
+            // 14-15 : 0-3 UI segment sets/groups
+                -WLED source
+        n:
+          type: string
+          description: "The name of the segment. Names are not present by default. if this is none, use \"Segment{id}\" to match the WLED UI"
+        col:
+          type: array
+          description: "Array that has up to 3 color arrays as elements, the primary, secondary (background) and tertiary colors of the segment. Each color is an array of 3 or 4 bytes, which represent an RGB(W) color."
+          items:
+            type: array
+            items:
+              type: integer
+              format: uint8
+              minimum: 0
+              maximum: 255
+        fx:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to info.fxcount -1; ID of the effect or ~ to increment, ~- to decrement, or r for random."
+        sx:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Relative effect speed. ~ to increment, ~- to decrement. ~10 to increment by 10, ~-10 to decrement by 10."
+        ix:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Effect intensity. ~ to increment, ~- to decrement. ~10 to increment by 10, ~-10 to decrement by 10."
+        pal:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "0 to info.palcount -1; ID of the color palette or ~ to increment, ~- to decrement, or r for random."
+        c1:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Effect custom slider 1. Custom sliders are hidden or displayed and labeled based on effect metadata."
+        c2:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Effect custom slider 2."
+        c3:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 31
+          description: "0 to 31; Effect custom slider 3."
+        sel:
+          type: boolean
+          description: "true if the segment is selected. Selected segments will have their state (color/FX) updated by APIs that don't support segments (e.g. UDP sync, HTTP API). If no segment is selected, the first segment (id:0) will behave as if selected. WLED will report the state of the first (lowest id) segment that is selected to APIs (HTTP, MQTT, Blynk...), or mainseg in case no segment is selected and for the UDP API. Live data is always applied to all LEDs regardless of segment configuration."
+        rev:
+          type: boolean
+          description: "Flips the segment, causing animations to change direction."
+        mi:
+          type: boolean
+          description: "Mirrors the segment (available since 0.10.2)"
+        o1:
+          type: boolean
+          description: "Effect option 1. Custom options are hidden or displayed and labeled based on effect metadata."
+        o2:
+          type: boolean
+          description: "Effect option 2."
+        o3:
+          type: boolean
+          description: "Effect option 3."
+        si:
+          type: integer
+          format: uint8
+          oneOf:
+            - const: 0
+              title: "BeatSin"
+            - const: 1
+              title: "WeWillRockYou"
+            - const: 2
+              title: "Type 10_3"
+            - const: 3
+              title: "Type 14_3"
+          description: "0 to 3; Setting of the sound simulation type for audio enhanced effects. (0: 'BeatSin', 1: 'WeWillRockYou', 2: '10_3', 3: '14_3') (as of 0.14.0-b1, there are these 4 types defined)"
+        m12:
+          type: integer
+          format: uint8
+          oneOf:
+            - const: 0
+              title: "Pixels"
+            - const: 1
+              title: "Bar"
+            - const: 2
+              title: "Arc"
+            - const: 3
+              title: "Corner"
+            - const: 4
+              title: "Count"
+          description: "0 to 4 [map1D2D.count]; Setting of segment field 'Expand 1D FX'. (0: Pixels, 1: Bar, 2: Arc, 3: Corner)"
+
+    Playlist:
+      type: object
+      properties:
+        ps:
+          type: array
+          description: "Array of preset ID integers to be applied in this order."
+          items:
+            type: integer
+            format: uint8
+            minimum: 0
+            maximum: 255
+        dur:
+          type: array
+          description: "Array of time each preset should be kept, in tenths of seconds. If only one integer is supplied, all presets will be kept for that time.Defaults to 10 seconds if not provided."
+          items:
+            type: integer
+            format: uint32
+            minimum: 0
+            maximum: 4294967295
+        transition:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Array of time each preset should transition to the next one, in tenths of seconds. If only one integer is supplied, all presets will transition for that time. Defaults to the current transition time if not provided."
+        repeat:
+          type: integer
+          format: uint16
+          minimum: 0
+          maximum: 65535
+          description: "How many times the entire playlist should cycle before finishing. Set to 0 for an indefinite cycle. Default to indefinite if not provided."
+        end:
+          type: integer
+          format: uint8
+          minimum: 0
+          maximum: 255
+          description: "Single preset ID to apply after the playlist finished. Has no effect when an indefinite cycle is set. If not provided, the light will stay on the last preset of the playlist."

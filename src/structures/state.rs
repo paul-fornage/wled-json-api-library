@@ -194,7 +194,7 @@ pub struct Seg {
     pub stop: Option<u16>,
 
     /// 0 to info.leds.count; Length of the segment (stop - start). stop has preference, so if it is included, len is ignored.
-    #[serde(skip_serializing)] // this feild is ignored if stop is sent, so don't risk sending bad shit
+    #[serde(skip_serializing)] // this field is ignored if stop is sent, so don't risk sending bad shit
     #[serde(default = "none_function")]
     pub len: Option<u16>,
 

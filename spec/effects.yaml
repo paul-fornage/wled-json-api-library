@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  title: WLED Effects
+  version: 1.0.0
+
+components:
+  schemas:
+    Effects:
+      type: array
+      description: Array of effect names
+      items:
+        type: string

@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  title: WLED Palettes
+  version: 1.0.0
+
+components:
+  schemas:
+    Palettes:
+      type: array
+      description: Array of palette names
+      items:
+        type: string
